@@ -1,0 +1,99 @@
+def caesar_cipher(msg, shift_val, mode='encode'):
+    final = []
+    shift_val = shift_val % 26
+    if mode == 'decode':
+        shift_val = -shift_val
+
+    for ch in msg:
+        if ch.isalpha():
+            base = ord('A') if ch.isupper() else ord('a')
+            final.append(chr((ord(ch) - base + shift_val) % 26 + base))
+        else:
+            final.append(ch)
+
+    return ''.join(final)
+
+
+def format_indian_currency(number):
+    num_str = str(number)
+    if '.' in num_str:
+        int_part, dec_part = num_str.split('.')
+    else:
+        int_part = num_str
+        dec_part = ''
+
+    result = ''
+    if len(int_part) > 3:
+        result = int_part[-3:]
+        int_part = int_part[:-3]
+
+        while len(int_part) > 0:
+            result = int_part[-2:] + ',' + result
+            int_part = int_part[:-2]
+    else:
+        result = int_part
+
+    if dec_part:
+        return result + '.' + dec_part
+    return result
+
+
+
+def combine_lists(list1, list2):
+    total = list1 + list2
+    total.sort(key=lambda item: item['positions'][0])
+    ans = []
+
+    for obj in total:
+        if not ans:
+            ans.append(obj)
+        else:
+            last = ans[-1]
+            l1, r1 = last['positions']
+            l2, r2 = obj['positions']
+
+            overlap = min(r1, r2) - max(l1, l2)
+            len1 = r1 - l1
+            len2 = r2 - l2
+
+            if overlap > 0 and (overlap >= len1/2 or overlap >= len2/2):
+                merged_obj = {
+                    'positions': last['positions'],
+                    'values': last['values'] + obj['values']
+                }
+                ans[-1] = merged_obj
+            else:
+                ans.append(obj)
+
+    return ans
+
+
+def minimize_loss(prices):
+    n = len(prices)
+    least_loss = float('inf')
+    buy_idx = sell_idx = -1
+
+    for i in range(n):
+        for j in range(i+1, n):
+            if prices[j] < prices[i]:
+                diff = prices[i] - prices[j]
+                if diff < least_loss:
+                    least_loss = diff
+                    buy_idx = i+1
+                    sell_idx = j+1
+
+    return buy_idx, sell_idx, least_loss
+
+
+if __name__ == '__main__':
+    print("Encoded:", caesar_cipher('Hello, MJ!', 3, 'encode')) 
+    print("Decoded:", caesar_cipher('Khoor, MJ!', 3, 'decode'))  
+
+    print("Currency:", format_indian_currency(123456.7891))  
+
+    sample1 = [{'positions': [0, 5], 'values': [1, 2]}]
+    sample2 = [{'positions': [3, 8], 'values': [3, 4]}]
+    print("Combined:", combine_lists(sample1, sample2))
+    
+    year_prices = [20, 15, 7, 2, 13]
+    print("Min Loss:", minimize_loss(year_prices)) 
